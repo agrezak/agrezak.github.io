@@ -89,7 +89,7 @@ simpleFormValidation = {
   // Name validation function
   _name: function() {
 
-    var reg = /^[A-Za-zżźćńółęąś\s\-]+$/;
+    var reg = /^[A-Za-z][a-zżźćńółęąś\]\s\-]+$/;
 
     if(!reg.test(this._elementsToValidate.currentValue)) {
       this._applyErrors();
@@ -150,6 +150,7 @@ simpleFormValidation = {
       var val = this._validationBooleans[keys[i]];
       if(val != true) {
         this._elementsToValidate.filledCorrectly = false;
+        break;
       } else {
         this._elementsToValidate.filledCorrectly = true;
       }
