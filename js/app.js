@@ -39,7 +39,7 @@ VALIDATION = {
         });
 
         function inputChange() {
-            console.log('dupa');
+            console.log(1);
         }
 
     //   this._o.required.addEventListener('change', (event) => {
