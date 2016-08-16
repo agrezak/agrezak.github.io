@@ -35,12 +35,8 @@ VALIDATION = {
     _bindEvents: function() {
 
         this._o.required.forEach((el, i) => {
-            this._o.required[i].addEventListener('change', inputChange)
+            this._o.required[i].addEventListener('change', this.inputChange)
         });
-
-        function inputChange() {
-            console.log(1);
-        }
 
     //   this._o.required.addEventListener('change', (event) => {
       //
@@ -59,6 +55,16 @@ VALIDATION = {
     //     }
       //
     //   });
+
+    },
+
+    inputChange: (event) => {
+
+        console.log(event.target);
+        console.log(event.target.value);
+
+        // this._o.currentInput = event.target;
+        // this._o.currentValue = event.target.value;
 
     },
 
