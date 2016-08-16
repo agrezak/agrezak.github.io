@@ -1,166 +1,164 @@
-simpleFormValidation = {
+var VALIDATION = VALIDATION || {};
 
-  init: function() {
-    that = this;
-    this._findElements();
-    this._bindEvents();
-  },
+VALIDATION = {
 
-  // Object holding all required elements, value of current input and current validation rule (is there is any) of current input
-  _elementsToValidate : {
-    required : [],
-    currentValue : '',
-    currentRule : '',
-    currentInput : [],
-    submit : [],
-    filledCorrectly : null
-  },
+    init: function() {
+      this._findElements();
+      this._bindEvents();
+    },
 
-  // Validation booleans
-  _validationBooleans : {
-    name : null,
-    phone : null,
-    email : null
-  },
+    _o : {
+      required : 'input[data-validation="required"]',
+      currentValue : '',
+      currentRule : '',
+      currentInput : [],
+      submit : '#submit-form',
+      filledCorrectly : null
+    },
 
-  // Search for objects with desired data attribute
-  _findElements: function() {
+    _validationBooleans : {
+      name : null,
+      phone : null,
+      email : null
+    },
 
-    var required = $('*[data-validation="required"]'),
-    submit = $('button');
+    _findElements: function() {
 
-    this._elementsToValidate.required = required;
-    this._elementsToValidate.submit = submit;
+    let required = document.querySelectorAll(this._o.required),
+        submit = document.querySelector(this._o.submit);
 
-  },
+     this._o.required = required;
+     this._o.submit = submit;
 
-  // Add event listeners
-  _bindEvents: function() {
+    },
 
-    this._elementsToValidate.required.on('change', function(value) {
+    _bindEvents: function() {
 
-      that._elementsToValidate.currentInput = this;
-      that._elementsToValidate.currentValue = this.value;
-      that._elementsToValidate.currentRule = $(this).data('validation-rule');
+        this._o.required.forEach((el, i) => {
+            this._o.required[i].addEventListener('change', inputChange)
+        });
 
-      that._isEmpty();
-      that._checkValidationRule();
-      that._checkIfFilled();
+        function inputChange() {
+            console.log('dupa');
+        }
 
-      if(that._elementsToValidate.filledCorrectly === true) {
-        that._elementsToValidate.submit.attr('disabled', false);
-      } else {
-        that._elementsToValidate.submit.attr('disabled', true);
-      }
+    //   this._o.required.addEventListener('change', (event) => {
+      //
+    //     this._o.currentInput = event.target;
+    //     this._o.currentValue = event.target.value;
+    //     this._o.currentRule = $(this).data('validation-rule');
+      //
+    //     this._isEmpty();
+    //     this._checkValidationRule();
+    //     this._checkIfFilled();
+      //
+    //     if(this._o.filledCorrectly === true) {
+    //       this._o.submit.attr('disabled', false);
+    //     } else {
+    //       this._o.submit.attr('disabled', true);
+    //     }
+      //
+    //   });
 
-    });
+    },
 
-  },
+    _isEmpty: function() {
 
-  // Check if input is empty
-  _isEmpty: function() {
+      var value = this._o.currentValue.replace(/ /g,'');
 
-    var value = this._elementsToValidate.currentValue.replace(/ /g,'');
+      value.length === 0 ? $(this._o.currentInput).siblings('span').text('This field is required') : $(this._o.currentInput).siblings('span').text('')
 
-    value.length === 0 ? $(this._elementsToValidate.currentInput).siblings('span').text('This field is required') : $(this._elementsToValidate.currentInput).siblings('span').text('')
+    },
 
-  },
+    _checkValidationRule: function() {
 
-  // Simple function that checks validation rule of current input
-  _checkValidationRule: function() {
+      var value = this._o.currentRule;
 
-    var value = this._elementsToValidate.currentRule;
-
-    switch(value) {
-      case 'name':
-      that._name();
-      break;
-      case 'phone':
-      that._phone();
-      break;
-      case 'email':
-      that._email();
-      default:
-      break
-    }
-
-  },
-
-  // Name validation function
-  _name: function() {
-
-    var reg = /^[A-Za-z][a-zżźćńółęąś\]\s\-]+$/;
-
-    if(!reg.test(this._elementsToValidate.currentValue)) {
-      this._applyErrors();
-      this._validationBooleans.name = false;
-    } else {
-      this._removeErrors();
-      this._validationBooleans.name = true;
-    }
-
-  },
-
-  // Phone validation function
-  _phone: function() {
-
-    var reg = /^[0-9]+$/;
-    if(!reg.test(this._elementsToValidate.currentValue)) {
-      this._applyErrors();
-      this._validationBooleans.phone = false;
-    } else {
-      this._removeErrors();
-      this._validationBooleans.phone = true;
-    }
-
-  },
-
-  // Email validation function
-  _email: function() {
-
-    var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    if(!reg.test(this._elementsToValidate.currentValue)) {
-      this._applyErrors();
-      this._validationBooleans.email = false;
-    } else {
-      this._removeErrors();
-      this._validationBooleans.email = true;
-    }
-
-  },
-
-  // Remove errors
-  _removeErrors: function() {
-    $(this._elementsToValidate.currentInput).addClass('validation-ok');
-    $(this._elementsToValidate.currentInput).removeClass('validation-error');
-  },
-
-  // Apply errors
-  _applyErrors: function() {
-    $(this._elementsToValidate.currentInput).addClass('validation-error');
-    $(this._elementsToValidate.currentInput).removeClass('validation-ok ')
-  },
-
-  // Check if inputs are filled correctly
-  _checkIfFilled: function() {
-
-    var keys = Object.keys(this._validationBooleans);
-
-    for (var i = 0; i < keys.length; i++) {
-      var val = this._validationBooleans[keys[i]];
-      if(val != true) {
-        this._elementsToValidate.filledCorrectly = false;
+      switch(value) {
+        case 'name':
+        that._name();
         break;
-      } else {
-        this._elementsToValidate.filledCorrectly = true;
+        case 'phone':
+        that._phone();
+        break;
+        case 'email':
+        that._email();
+        default:
+        break
       }
-    };
-  }
+
+    },
+
+      _name: function() {
+
+        var reg = /^[A-Za-z][a-zżźćńółęąś\]\s\-]+$/;
+
+        if(!reg.test(this._o.currentValue)) {
+          this._applyErrors();
+          this._validationBooleans.name = false;
+        } else {
+          this._removeErrors();
+          this._validationBooleans.name = true;
+        }
+
+      },
+
+      _phone: function() {
+
+        var reg = /^[0-9]+$/;
+        if(!reg.test(this._o.currentValue)) {
+          this._applyErrors();
+          this._validationBooleans.phone = false;
+        } else {
+          this._removeErrors();
+          this._validationBooleans.phone = true;
+        }
+
+      },
+
+      _email: function() {
+
+        var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if(!reg.test(this._o.currentValue)) {
+          this._applyErrors();
+          this._validationBooleans.email = false;
+        } else {
+          this._removeErrors();
+          this._validationBooleans.email = true;
+        }
+
+      },
+
+      _removeErrors: function() {
+        $(this._o.currentInput).addClass('validation-ok');
+        $(this._o.currentInput).removeClass('validation-error');
+      },
+
+      _applyErrors: function() {
+        $(this._o.currentInput).addClass('validation-error');
+        $(this._o.currentInput).removeClass('validation-ok ')
+      },
+
+      // Check if inputs are filled correctly
+      _checkIfFilled: function() {
+
+        var keys = Object.keys(this._validationBooleans);
+
+        for (var i = 0; i < keys.length; i++) {
+          var val = this._validationBooleans[keys[i]];
+          if(val != true) {
+            this._o.filledCorrectly = false;
+            break;
+          } else {
+            this._o.filledCorrectly = true;
+          }
+        };
+      }
+
 
 }
 
-// Run the validation
 
 $(document).ready(function() {
-  simpleFormValidation.init();
+  VALIDATION.init();
 });
